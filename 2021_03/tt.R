@@ -43,31 +43,48 @@ for (i in 1:nrow(df)){
   }
 }
 
+
+#how about we just look at the minmax?
+maxarea <- max(df$area)
+minarea <- min(df$area)
+
 #the largest pieces with time
-dfl <- df %>% filter(largest == 1)
+#dfl <- df %>% filter(largest == 1)
 
 
-dfl <- dfl %>% 
-  mutate(text = glue('Artist: {artist}\nTitle: {title}\nMedium: {medium}\nCreated: {year}\nArea: {comma(area, accuracy = 0.1, suffix = " sq. m")}'),
-         x = c(1833,1837,1838,1840,1857,1872,1885,1925,   1965,1975,1990),
-         y = c( 142, 122, 102,  82,  62,  41,  22,36.2,     75, 100, 132),
-         hjust = c("left","left","left","left","left","left","left","left","right","right","right"))
+#dfl <- dfl %>% 
+#  mutate(text = glue('Artist: {artist}\nTitle: {title}\nMedium: {medium}\nCreated: {year}\nArea: {comma(area, accuracy = 0.1, suffix = " sq. m")}'),
+#         x = c(1833,1837,1838,1840,1857,1872,1885,1925,   1965,1975,1990),
+#         y = c( 142, 122, 102,  82,  62,  41,  22,36.2,     75, 100, 132),
+#         hjust = c("left","left","left","left","left","left","left","left","right","right","right"))
+
+
+#the minmax pieces
+df <- df %>% mutate(minmax = case_when(area == maxarea ~ 1, area == minarea ~ -1, TRUE ~ 0))
+
+
+dfmm <- df %>% filter(minmax != 0) %>% 
+  mutate(text = glue('Artist: {artist}\nTitle: {title}\nMedium: {medium}\nCreated: {year}\nSize: {width} x {height} mm'),
+         x = c(1950,1990),
+         y = c(50, 132),
+         hjust = c("right","right"))
+         
 
 
 
-df %>% filter(area > 1) %>%
+
+df %>% #filter(area > 1) %>%
   ggplot(aes(x=acquisitionYear, y=area))+
   geom_point(colour="#385ee8", size = 3)+  #unhighlighted "#bbd1f0"    highlighted: "#385ee8"
-  gghighlight(largest == 1,unhighlighted_params = list(colour="#bbd1f0", alpha = 0.3, size = 1.5)) +
+  gghighlight(minmax != 0,unhighlighted_params = list(colour="#bbd1f0", alpha = 0.3, size = 2)) +
 
  
-  geom_text(data = dfl, 
-            #aes(x = ifelse(hjust == "right",x - 0.5, x + 0.5), y = (y + yend) / 2,
-            aes(x = ifelse(hjust == "right",x - 0.5, x + 0.5), y = y, 
-                label = text,
-                hjust = hjust), 
-            color = "white", 
-            size = 3) +  
+#  geom_text(data = dfmm, 
+#            aes(x = ifelse(hjust == "right",x - 0.5, x + 0.5), y = y, 
+#                label = text,
+#                hjust = hjust), 
+#            color = "white", 
+#            size = 3) +  
   
    
   scale_x_continuous(breaks=c(seq(1825,2020,by=25),2014))+
