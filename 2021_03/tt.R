@@ -31,33 +31,10 @@ df <- df[complete.cases(df), ]
 df <- df %>% mutate(area = width * height / (1000*1000)) #sq m
 df <- df %>% arrange(acquisitionYear)
 
-df <- df %>% mutate(largest = 0)
-
-
-#is the work the largest up until now?
-val <- 0
-for (i in 1:nrow(df)){
-  if(df[i,]$area > val){
-    val = df[i,]$area
-    df[i,]$largest = 1
-  }
-}
-
 
 #how about we just look at the minmax?
 maxarea <- max(df$area)
 minarea <- min(df$area)
-
-#the largest pieces with time
-#dfl <- df %>% filter(largest == 1)
-
-
-#dfl <- dfl %>% 
-#  mutate(text = glue('Artist: {artist}\nTitle: {title}\nMedium: {medium}\nCreated: {year}\nArea: {comma(area, accuracy = 0.1, suffix = " sq. m")}'),
-#         x = c(1833,1837,1838,1840,1857,1872,1885,1925,   1965,1975,1990),
-#         y = c( 142, 122, 102,  82,  62,  41,  22,36.2,     75, 100, 132),
-#         hjust = c("left","left","left","left","left","left","left","left","right","right","right"))
-
 
 #the minmax pieces
 df <- df %>% mutate(minmax = case_when(area == maxarea ~ 1, area == minarea ~ -1, TRUE ~ 0))
@@ -75,7 +52,7 @@ dfmm <- df %>% filter(minmax != 0) %>%
 
 df %>% #filter(area > 1) %>%
   ggplot(aes(x=acquisitionYear, y=area))+
-  geom_point(colour="#385ee8", size = 3)+  #unhighlighted "#bbd1f0"    highlighted: "#385ee8"
+  geom_point(colour="#385ee8", size = 4)+  #unhighlighted "#bbd1f0"    highlighted: "#385ee8"
   gghighlight(minmax != 0,unhighlighted_params = list(colour="#bbd1f0", alpha = 0.3, size = 2)) +
 
  
